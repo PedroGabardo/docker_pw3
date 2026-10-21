@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TarefaRequest;
 use App\Models\Tarefa;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class TarefaController extends Controller
@@ -39,7 +40,12 @@ class TarefaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $tarefa = Tarefa::findOrFail($id);
+            return response()->json($tarefa);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Tarefa não encontrada'], 404);
+        }
     }
 
     /**
@@ -53,9 +59,11 @@ class TarefaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(TarefaRequest $request, string $id)
     {
-        //
+        $tarefa = Tarefa::findOrFail($id);
+        $tarefa->update($request->all());
+        return response()->json($tarefa);
     }
 
     /**
@@ -63,6 +71,8 @@ class TarefaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $tarefa = Tarefa::findOrFail($id);
+        $tarefa->delete();
+        return response()->json(null, 204);
     }
 }
